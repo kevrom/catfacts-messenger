@@ -80,6 +80,8 @@ const hook$ = Observable.create(observer => {
       // if the user clicks the cat gif button, ship off a gif url
       return Observable.of(m)
         .map(msg => msg.sender.id)
+        // wait a little while before shipping off the buttons
+        .delay(2000)
         .mergeMap(id => fetchMessenger$({
           recipient: { id },
           message: {
@@ -95,6 +97,8 @@ const hook$ = Observable.create(observer => {
       // and if the user clicks the cat fact button, send a fact
       return Observable.of(m)
         .map(msg => msg.sender.id)
+        // wait a little while before shipping off the buttons
+        .delay(2000)
         .mergeMap(id => fetchMessenger$({
           recipient: { id },
           message: {
@@ -103,12 +107,10 @@ const hook$ = Observable.create(observer => {
         }))
     }
 
-    // any unhandled stuff will just throw so we don't send anything else
-    return Observable.throw()
+    // any unhandled stuff will just send the buttons
+    return Observable.of(m)
+      .map(msg => ({ recipient_id: msg.sender.id }))
   })
-
-  // wait a little while before shipping off the buttons
-  .delay(2000)
 
   // send the button template
   .mergeMap(res => sendButton$(Observable.of(res.recipient_id)))
